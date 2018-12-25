@@ -5,12 +5,15 @@ import br.com.douglasffilho.reactivespring.domain.impl.Customer;
 import br.com.douglasffilho.reactivespring.repository.CustomerRepository;
 import br.com.douglasffilho.reactivespring.service.impl.CustomerServiceImpl;
 import org.junit.jupiter.api.Test;
+import org.junit.platform.commons.util.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.data.mongo.DataMongoTest;
 import org.springframework.context.annotation.Import;
 import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
+import java.time.Duration;
 import java.util.function.Predicate;
 
 @DataMongoTest
@@ -61,7 +64,19 @@ public class CustomerServiceTest {
 
     @Test
     public void shouldCreateNewCustomer() {
+        final Customer newCustomer = Customer
+            .builder()
+            .email("teste4@gmail.com")
+            .telephone("+5511988888884")
+            .gender(Gender.U)
+            .build();
 
+        Mono<Customer> savedOne = customerRepository.save(newCustomer);
+
+        StepVerifier
+            .create(savedOne)
+            .expectNextMatches(saved -> StringUtils.isNotBlank(saved.getId()))
+            .verifyComplete();
     }
 
 }
